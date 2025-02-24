@@ -1,0 +1,145 @@
+import cv2
+import numpy as np
+import sys
+
+# NumPy 
+def custom_opening(image, kernel_size):
+    """ Opening operation using NumPy """
+
+    # 先执行腐蚀
+    eroded = custom_erode(image, kernel_size)
+    # 再执行膨胀
+    opened = custom_dilate(eroded, kernel_size)
+    return opened
+
+# Python List 
+def manual_opening(image, kernel_size):
+    """ Opening operation using pure Python lists """
+
+    eroded = manual_erode(image, kernel_size)
+    opened = manual_dilate(eroded, kernel_size)
+    return opened
+
+# OpenCV 版本 - 一步完成开运算
+def cv_opening(image, kernel_size):
+    """ OpenCV version of morphological opening """
+
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (kernel_size, kernel_size))
+    return cv2.morphologyEx(image, cv2.MORPH_OPEN, kernel)
+
+def exercise_04a_opening(i, input_file, output_file, method="numpy"):
+    """ Opening operation """
+
+    image = cv2.imread(input_file, cv2.IMREAD_GRAYSCALE)
+    if image is None:
+        print(f"Error: Unable to read {input_file}")
+        sys.exit(1)
+    
+    kernel_size = 2 * i + 1  # 计算 (2*i+1) x (2*i+1) 结构元素大小
+    opened_image = image.copy()
+
+    # 执行 i 次开运算
+    for _ in range(i):
+        if method == "numpy":
+            opened_image = custom_opening(opened_image, kernel_size)
+        elif method == "list":
+            opened_image = manual_opening(opened_image, kernel_size)
+        elif method == "opencv":
+            opened_image = cv_opening(opened_image, kernel_size)
+
+    # 保存结果
+    cv2.imwrite(output_file, opened_image)
+    print(f"Opening of size {i} applied and saved to {output_file} (Method: {method})")
+
+# 使用 NumPy 实现形态学腐蚀
+def custom_erode(image, kernel_size):
+    """ Custom erosion (NumPy version) """
+
+    h, w = image.shape
+    pad = kernel_size // 2  
+    eroded_image = np.copy(image)
+    padded_image = np.pad(image, pad_width=pad, mode='constant', constant_values=255)
+
+    for y in range(h):
+        for x in range(w):
+            local_region = padded_image[y:y + kernel_size, x:x + kernel_size]
+            eroded_image[y, x] = np.min(local_region)
+
+    return eroded_image
+
+# 使用 NumPy 实现形态学膨胀
+def custom_dilate(image, kernel_size):
+    """ Custom dilation (NumPy version) """
+
+    h, w = image.shape
+    pad = kernel_size // 2  
+    dilated_image = np.copy(image)
+    padded_image = np.pad(image, pad_width=pad, mode='constant', constant_values=0)
+
+    for y in range(h):
+        for x in range(w):
+            local_region = padded_image[y:y + kernel_size, x:x + kernel_size]
+            dilated_image[y, x] = np.max(local_region)
+
+    return dilated_image
+
+# 纯 Python 列表实现腐蚀
+def manual_erode(image, kernel_size):
+    """ Custom erosion (Python list version) """
+
+    h, w = image.shape
+    pad = kernel_size // 2  
+    eroded_image = image.copy()
+
+    for y in range(pad, h - pad):
+        for x in range(pad, w - pad):
+            local_region = []
+            for ky in range(-pad, pad + 1):
+                for kx in range(-pad, pad + 1):
+                    local_region.append(image[y + ky, x + kx])  
+            eroded_image[y, x] = min(local_region)
+
+    return eroded_image
+
+# 纯 Python 列表实现膨胀
+def manual_dilate(image, kernel_size):
+    """ Custom dilation (Python list version) """
+
+    h, w = image.shape
+    pad = kernel_size // 2  
+    dilated_image = image.copy()
+
+    for y in range(pad, h - pad):
+        for x in range(pad, w - pad):
+            local_region = []
+            for ky in range(-pad, pad + 1):
+                for kx in range(-pad, pad + 1):
+                    local_region.append(image[y + ky, x + kx])  
+            dilated_image[y, x] = max(local_region)
+
+    return dilated_image
+
+# 测试开运算操作
+i1 = 1  # 3x3 结构元素
+i2 = 2  # 5x5 结构元素
+input_file = "Exercises_04ab/immed_gray_inv.pgm"
+output_file1 = "Exercises_04ab/immed_gray_inv_ope1.pgm"
+output_file2 = "Exercises_04ab/immed_gray_inv_ope2.pgm"
+
+# 运行不同的开运算方法
+exercise_04a_opening(i1, input_file, output_file1, method="list")   # NumPy 版
+exercise_04a_opening(i2, input_file, output_file2, method="list")  # OpenCV 版
+
+# 显示图像
+img_original = cv2.imread(input_file, cv2.IMREAD_GRAYSCALE)
+img_opened1 = cv2.imread(output_file1, cv2.IMREAD_GRAYSCALE)
+img_opened2 = cv2.imread(output_file2, cv2.IMREAD_GRAYSCALE)
+
+if img_original is not None and img_opened1 is not None and img_opened2 is not None:
+    cv2.imshow("Original Image", img_original)
+    cv2.imshow(f"Opened Image (i={i1})", img_opened1)
+    cv2.imshow(f"Opened Image (i={i2})", img_opened2)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+else:
+    print("Error: Unable to load images for display.")

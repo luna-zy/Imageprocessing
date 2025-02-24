@@ -66,10 +66,9 @@ print("--------------------------------")
 
 
 print("Saving image to file output1.pgm ...")
-cv2.imwrite("output1.pgm", img2);
+cv2.imwrite("Exercises_01a/output1.pgm", img2)
 # Saving to .png :
 # cv2.imwrite("output1.png", img2);
-
 
 print("Showing image in window... Press a key to finish.")
 cv2.imshow("Window: img2", img2)

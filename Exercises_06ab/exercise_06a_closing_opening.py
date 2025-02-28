@@ -137,27 +137,31 @@ def custom_dilate(image, kernel_size):
 
     return dilated_image
 
-# 运行测试
-i1 = 2  # 5x5 结构元素
-i2 = 4  # 9x9 结构元素
-input_file = "Exercises_04ab/immed_gray_inv.pgm"
-output_file1 = "Exercises_06ab/immed_gray_inv_clo2ope2.pgm"
-output_file2 = "Exercises_06ab/immed_gray_inv_clo4ope4.pgm"
 
-# 运行不同的 Closing-Opening 交替滤波方法w
-exercise_06a_closing_opening(i1, input_file, output_file1, method="list")   # NumPy 版
-exercise_06a_closing_opening(i2, input_file, output_file2, method="list")   # NumPy 版
+if __name__ == "__main__":
 
-# 显示图像
-img_original = cv2.imread(input_file, cv2.IMREAD_GRAYSCALE)
-img_filtered1 = cv2.imread(output_file1, cv2.IMREAD_GRAYSCALE)
-img_filtered2 = cv2.imread(output_file2, cv2.IMREAD_GRAYSCALE)
 
-if img_original is not None and img_filtered1 is not None and img_filtered2 is not None:
-    cv2.imshow("Original Image", img_original)
-    cv2.imshow(f"Closing-Opening ( i={i1})", img_filtered1)
-    cv2.imshow(f"Closing-Opening ( i={i2})", img_filtered2)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-else:
-    print("Error: Unable to load images for display.")
+    # 运行测试
+    i1 = 2  # 5x5 结构元素
+    i2 = 4  # 9x9 结构元素
+    input_file = "Exercises_04ab/immed_gray_inv.pgm"
+    output_file1 = "Exercises_06ab/immed_gray_inv_clo2ope2.pgm"
+    output_file2 = "Exercises_06ab/immed_gray_inv_clo4ope4.pgm"
+
+    # 运行不同的 Closing-Opening 交替滤波方法w
+    exercise_06a_closing_opening(i1, input_file, output_file1, method="list")   # NumPy 版
+    exercise_06a_closing_opening(i2, input_file, output_file2, method="list")   # NumPy 版
+
+    # 显示图像
+    img_original = cv2.imread(input_file, cv2.IMREAD_GRAYSCALE)
+    img_filtered1 = cv2.imread(output_file1, cv2.IMREAD_GRAYSCALE)
+    img_filtered2 = cv2.imread(output_file2, cv2.IMREAD_GRAYSCALE)
+
+    if img_original is not None and img_filtered1 is not None and img_filtered2 is not None:
+        cv2.imshow("Original Image", img_original)
+        cv2.imshow(f"Closing-Opening ( i={i1})", img_filtered1)
+        cv2.imshow(f"Closing-Opening ( i={i2})", img_filtered2)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+    else:
+        print("Error: Unable to load images for display.")

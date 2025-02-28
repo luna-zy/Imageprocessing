@@ -70,27 +70,6 @@ def cv_opening_closing(image, kernel_size):
     opened_closed = cv2.morphologyEx(closed, cv2.MORPH_OPEN, kernel)  # 再开运算
     return opened_closed
 
-def exercise_06b_opening_closing(i, input_file, output_file, method="numpy"):
-    """ 交替滤波处理（Opening-Closing） """
-    image = cv2.imread(input_file, cv2.IMREAD_GRAYSCALE)
-    if image is None:
-        print(f"Error: Unable to read {input_file}")
-        sys.exit(1)
-    
-    kernel_size = 2 * i + 1  
-    filtered_image = image.copy()
-
-    for _ in range(i):
-        if method == "numpy":
-            filtered_image = custom_opening_closing(filtered_image, kernel_size)
-        elif method == "opencv":
-            filtered_image = cv_opening_closing(filtered_image, kernel_size)
-        elif method == "list":
-            filtered_image = manual_opening_closing(filtered_image, kernel_size)
-
-    cv2.imwrite(output_file, filtered_image)
-    print(f"Opening-Closing of size {i} applied and saved to {output_file} (Method: {method})")
-
 # NumPy 方式 - 形态学开运算
 def custom_opening(image, kernel_size):
     """ 先腐蚀再膨胀（手写 NumPy 实现）"""
@@ -135,27 +114,56 @@ def custom_dilate(image, kernel_size):
 
     return dilated_image
 
-# 运行测试
-i1 = 2  # 5x5 结构元素
-i2 = 4  # 9x9 结构元素
-input_file = "Exercises_04ab/immed_gray_inv.pgm"
-output_file1 = "Exercises_06ab/immed_gray_inv_ope2clo2.pgm"
-output_file2 = "Exercises_06ab/immed_gray_inv_ope4clo4.pgm"
+
+
+def exercise_06b_opening_closing(i, input_file, output_file, method="numpy"):
+    """ 交替滤波处理（Opening-Closing） """
+    image = cv2.imread(input_file, cv2.IMREAD_GRAYSCALE)
+    if image is None:
+        print(f"Error: Unable to read {input_file}")
+        sys.exit(1)
+    
+    kernel_size = 2 * i + 1  
+    filtered_image = image.copy()
+
+    for _ in range(i):
+        if method == "numpy":
+            filtered_image = custom_opening_closing(filtered_image, kernel_size)
+        elif method == "opencv":
+            filtered_image = cv_opening_closing(filtered_image, kernel_size)
+        elif method == "list":
+            filtered_image = manual_opening_closing(filtered_image, kernel_size)
+
+    cv2.imwrite(output_file, filtered_image)
+    print(f"Opening-Closing of size {i} applied and saved to {output_file} (Method: {method})")
+
+
+
+# 确保调用这个脚本时不会执行下面的代码
+# make sure the code below is not executed when calling this script
+if __name__ == "__main__":
+
+    # 运行测试
+    i1 = 2  # 5x5 结构元素
+    i2 = 4  # 9x9 结构元素
+    input_file = "Exercises_04ab/immed_gray_inv.pgm"
+    output_file1 = "Exercises_06ab/immed_gray_inv_ope2clo2.pgm"
+    output_file2 = "Exercises_06ab/immed_gray_inv_ope4clo4.pgm"
 
 # 运行不同的 Opening-Closing 交替滤波方法
-exercise_06b_opening_closing(i1, input_file, output_file1, method="list")  
-exercise_06b_opening_closing(i2, input_file, output_file2, method="list")  
+    exercise_06b_opening_closing(i1, input_file, output_file1, method="list")  
+    exercise_06b_opening_closing(i2, input_file, output_file2, method="list")  
 
 # 显示图像
-img_original = cv2.imread(input_file, cv2.IMREAD_GRAYSCALE)
-img_filtered1 = cv2.imread(output_file1, cv2.IMREAD_GRAYSCALE)
-img_filtered2 = cv2.imread(output_file2, cv2.IMREAD_GRAYSCALE)
+    img_original = cv2.imread(input_file, cv2.IMREAD_GRAYSCALE)
+    img_filtered1 = cv2.imread(output_file1, cv2.IMREAD_GRAYSCALE)
+    img_filtered2 = cv2.imread(output_file2, cv2.IMREAD_GRAYSCALE)
 
-if img_original is not None and img_filtered1 is not None and img_filtered2 is not None:
-    cv2.imshow("Original Image", img_original)
-    cv2.imshow(f"Opening-Closing (NumPy, i={i1})", img_filtered1)
-    cv2.imshow(f"Opening-Closing (OpenCV, i={i2})", img_filtered2)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-else:
-    print("Error: Unable to load images for display.")
+    if img_original is not None and img_filtered1 is not None and img_filtered2 is not None:
+        cv2.imshow("Original Image", img_original)
+        cv2.imshow(f"Opening-Closing (NumPy, i={i1})", img_filtered1)
+        cv2.imshow(f"Opening-Closing (OpenCV, i={i2})", img_filtered2)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+    else:
+        print("Error: Unable to load images for display.")

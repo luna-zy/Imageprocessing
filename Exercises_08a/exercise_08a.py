@@ -7,11 +7,11 @@ Let B be astructuring element square of size 3x3"""
             Filter 4: opening_B (closing_B (I))
 Indicate which are the two best filters to eliminate 
 the noise in output file: 'exercise_08a_output_01.txt' 
-(particularly,the first two lines should contain the filter numbers (1−4))."""
+(particularly,the first two lines should contain the filter numbers (1-4))."""
 
-"""iuput_image=Exercises_08a\isn_256.pgm"""
+"""iuput_image=Exercises_08a/isn_256.pgm"""
 
-# public libraries
+# public libraries 
 import sys
 import os
 import cv2

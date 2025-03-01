@@ -70,7 +70,8 @@ def count_flat_zones_queue(input_txt, input_pgm, output_txt):
 
 # 运行测试
 input_txt = "Exercises_12a/exercise_12a_input_01.txt"
-input_pgm = "Exercises_12a/immed_gray_inv.pgm"
+#input_pgm = "Exercises_12a/immed_gray_inv.pgm"
+input_pgm = "Exercises_12a/immed_gray_inv_20051218_thresh127.pgm"
 output_txt = "Exercises_12a/exercise_12a_output_01.txt"
 
 count_flat_zones_queue(input_txt, input_pgm, output_txt)

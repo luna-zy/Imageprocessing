@@ -50,16 +50,19 @@ def compute_flat_zone(image, x, y, connectivity, flat_zone_label):
     
     return output
 def is_regional_minimum(image, flat_zone):
+    """检查 flat zone 是否是区域最小值"""
     h, w = image.shape
     min_value = np.min(image[flat_zone == 255])
-    
+
     for y in range(h):
         for x in range(w):
             if flat_zone[y, x] == 255:
                 for ny, nx in get_neighbors((y, x), (h, w), 8):
-                    if image[ny, nx] < min_value:
-                        return 0  # Not a regional minimum
-    return 1  # Is a regional minimum
+                    if flat_zone[ny, nx] != 255:  # 只检查 flat zone 外的像素
+                        if image[ny, nx] <= min_value:  # 如果有相邻值 ≤ min_value，则不是最小值
+                            return 0
+    return 1
+
 def write_output_text(filename, value):
     with open(filename, 'w') as f:
         f.write(str(value) + "\n")

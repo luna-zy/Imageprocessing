@@ -64,7 +64,7 @@ def is_regional_maximum(image, flat_zone):
                 for ny, nx in get_neighbors((y, x), (h, w), 8):  # 8-邻域
                     if flat_zone[ny, nx] != 255:  # 只检查 flat zone 以外的邻居
                         if image[ny, nx] >= max_value:  # 若邻居值 >= flat zone 最大值
-                            print(f"Checking ({ny}, {nx}): {image[ny, nx]} vs {max_value}")
+                            #print(f"Checking ({ny}, {nx}): {image[ny, nx]} vs {max_value}")
                             return 0  # 不是区域最大值
     return 1  # 是区域最大值
 

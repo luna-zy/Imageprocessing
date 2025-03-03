@@ -1,6 +1,11 @@
 import cv2
 import numpy as np
 import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from Exercises_02ab.exercise_02b_compare import exercise_02b_compare
+from Exercises_03ab.exercise_03a_erosion import custom_erode, manual_erode, cv_erode
+from Exercises_03ab.exercise_03b_dilation import custom_dilate, manual_dilate, cv_dilate  
 
 # NumPy 版本 - 先膨胀再腐蚀
 def custom_closing(image, kernel_size):
@@ -47,89 +52,30 @@ def exercise_04b_closing(i, input_file, output_file, method="numpy"):
     cv2.imwrite(output_file, closed_image)
     print(f"Closing of size {i} applied and saved to {output_file} (Method: {method})")
 
-# 使用 NumPy 实现形态学腐蚀
-def custom_erode(image, kernel_size):
-    """ 手写形态学腐蚀（NumPy 版本）"""
-    h, w = image.shape
-    pad = kernel_size // 2  
-    eroded_image = np.copy(image)
-    padded_image = np.pad(image, pad_width=pad, mode='constant', constant_values=255)
+if __name__ == "__main__":
+    # 测试闭运算操作
+    i1 = 1  # 3x3 结构元素
+    i2 = 2  # 5x5 结构元素
+    input_file = "Exercises_04ab/immed_gray_inv.pgm"
+    output_file1 = "Exercises_04ab/immed_gray_inv_clo1.pgm"
+    output_file2 = "Exercises_04ab/immed_gray_inv_clo2.pgm"
 
-    for y in range(h):
-        for x in range(w):
-            local_region = padded_image[y:y + kernel_size, x:x + kernel_size]
-            eroded_image[y, x] = np.min(local_region)
+    # 运行不同的闭运算方法
+    exercise_04b_closing(i1, input_file, output_file1, method="numpy")   # NumPy 版
+    exercise_04b_closing(i2, input_file, output_file2, method="numpy")  # OpenCV 版
 
-    return eroded_image
+    # 显示图像
+    img_original = cv2.imread(input_file, cv2.IMREAD_GRAYSCALE)
+    img_closed1 = cv2.imread(output_file1, cv2.IMREAD_GRAYSCALE)
+    img_closed2 = cv2.imread(output_file2, cv2.IMREAD_GRAYSCALE)
+    print(exercise_02b_compare(output_file1, "Exercises_04ab\immed_gray_inv_20051123_clo1.pgm"))
+    print(exercise_02b_compare(output_file2, "Exercises_04ab\immed_gray_inv_20051123_clo2.pgm"))
 
-# 使用 NumPy 实现形态学膨胀
-def custom_dilate(image, kernel_size):
-    """ 手写形态学膨胀（NumPy 版本）"""
-    h, w = image.shape
-    pad = kernel_size // 2  
-    dilated_image = np.copy(image)
-    padded_image = np.pad(image, pad_width=pad, mode='constant', constant_values=0)
-
-    for y in range(h):
-        for x in range(w):
-            local_region = padded_image[y:y + kernel_size, x:x + kernel_size]
-            dilated_image[y, x] = np.max(local_region)
-
-    return dilated_image
-
-# 纯 Python 列表实现腐蚀
-def manual_erode(image, kernel_size):
-    h, w = image.shape
-    pad = kernel_size // 2  
-    eroded_image = image.copy()
-
-    for y in range(pad, h - pad):
-        for x in range(pad, w - pad):
-            local_region = []
-            for ky in range(-pad, pad + 1):
-                for kx in range(-pad, pad + 1):
-                    local_region.append(image[y + ky, x + kx])  
-            eroded_image[y, x] = min(local_region)
-
-    return eroded_image
-
-# 纯 Python 列表实现膨胀
-def manual_dilate(image, kernel_size):
-    h, w = image.shape
-    pad = kernel_size // 2  
-    dilated_image = image.copy()
-
-    for y in range(pad, h - pad):
-        for x in range(pad, w - pad):
-            local_region = []
-            for ky in range(-pad, pad + 1):
-                for kx in range(-pad, pad + 1):
-                    local_region.append(image[y + ky, x + kx])  
-            dilated_image[y, x] = max(local_region)
-
-    return dilated_image
-
-# 测试闭运算操作
-i1 = 1  # 3x3 结构元素
-i2 = 2  # 5x5 结构元素
-input_file = "Exercises_04ab/immed_gray_inv.pgm"
-output_file1 = "Exercises_04ab/immed_gray_inv_clo1.pgm"
-output_file2 = "Exercises_04ab/immed_gray_inv_clo2.pgm"
-
-# 运行不同的闭运算方法
-exercise_04b_closing(i1, input_file, output_file1, method="list")   # NumPy 版
-exercise_04b_closing(i2, input_file, output_file2, method="list")  # OpenCV 版
-
-# 显示图像
-img_original = cv2.imread(input_file, cv2.IMREAD_GRAYSCALE)
-img_closed1 = cv2.imread(output_file1, cv2.IMREAD_GRAYSCALE)
-img_closed2 = cv2.imread(output_file2, cv2.IMREAD_GRAYSCALE)
-
-if img_original is not None and img_closed1 is not None and img_closed2 is not None:
-    cv2.imshow("Original Image", img_original)
-    cv2.imshow(f"Closed Image (list, i={i1})", img_closed1)
-    cv2.imshow(f"Closed Image (list, i={i2})", img_closed2)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-else:
-    print("Error: Unable to load images for display.")
+    if img_original is not None and img_closed1 is not None and img_closed2 is not None:
+        cv2.imshow("Original Image", img_original)
+        cv2.imshow(f"Closed Image (list, i={i1})", img_closed1)
+        cv2.imshow(f"Closed Image (list, i={i2})", img_closed2)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+    else:
+        print("Error: Unable to load images for display.")

@@ -1,52 +1,13 @@
 import cv2
 import numpy as np
 import sys
-
-def manual_opening(image, kernel_size):
-    """ Opening operation using pure Python lists """
-
-    eroded = manual_erode(image, kernel_size)
-    opened = manual_dilate(eroded, kernel_size)
-    return opened
-
-def manual_closing(image, kernel_size):
-    """ 纯 Python 版形态学闭运算（适用于小图像，速度较慢） """
-    dilated = manual_dilate(image, kernel_size)
-    closed = manual_erode(dilated, kernel_size)
-    return closed
-
-
-def manual_erode(image, kernel_size):
-    h, w = image.shape
-    pad = kernel_size // 2  
-    eroded_image = image.copy()
-
-    for y in range(pad, h - pad):
-        for x in range(pad, w - pad):
-            local_region = []
-            for ky in range(-pad, pad + 1):
-                for kx in range(-pad, pad + 1):
-                    local_region.append(image[y + ky, x + kx])  
-            eroded_image[y, x] = min(local_region)
-
-    return eroded_image
-
-# 纯 Python 列表实现膨胀
-def manual_dilate(image, kernel_size):
-    h, w = image.shape
-    pad = kernel_size // 2  
-    dilated_image = image.copy()
-
-    for y in range(pad, h - pad):
-        for x in range(pad, w - pad):
-            local_region = []
-            for ky in range(-pad, pad + 1):
-                for kx in range(-pad, pad + 1):
-                    local_region.append(image[y + ky, x + kx])  
-            dilated_image[y, x] = max(local_region)
-
-    return dilated_image
-
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from Exercises_02ab.exercise_02b_compare import exercise_02b_compare
+from Exercises_03ab.exercise_03a_erosion import custom_erode, manual_erode, cv_erode
+from Exercises_03ab.exercise_03b_dilation import custom_dilate, manual_dilate, cv_dilate  
+from Exercises_04ab.exercise_04b_closing import custom_closing, manual_closing, cv_closing, exercise_04b_closing
+from Exercises_04ab.exercise_04a_opening import custom_opening, manual_opening, cv_opening, exercise_04a_opening
 
 # 交替滤波：先闭运算，再开运算
 def custom_opening_closing(image, kernel_size):
@@ -69,52 +30,6 @@ def cv_opening_closing(image, kernel_size):
     closed = cv2.morphologyEx(image, cv2.MORPH_CLOSE, kernel)  # 先闭运算
     opened_closed = cv2.morphologyEx(closed, cv2.MORPH_OPEN, kernel)  # 再开运算
     return opened_closed
-
-# NumPy 方式 - 形态学开运算
-def custom_opening(image, kernel_size):
-    """ 先腐蚀再膨胀（手写 NumPy 实现）"""
-    eroded = custom_erode(image, kernel_size)
-    opened = custom_dilate(eroded, kernel_size)
-    return opened
-
-# NumPy 方式 - 形态学闭运算
-def custom_closing(image, kernel_size):
-    """ 先膨胀再腐蚀（手写 NumPy 实现）"""
-    dilated = custom_dilate(image, kernel_size)
-    closed = custom_erode(dilated, kernel_size)
-    return closed
-
-# NumPy 方式 - 形态学腐蚀
-def custom_erode(image, kernel_size):
-    """ NumPy 实现形态学腐蚀 """
-    h, w = image.shape
-    pad = kernel_size // 2
-    eroded_image = np.copy(image)
-    padded_image = np.pad(image, pad_width=pad, mode='constant', constant_values=255)
-
-    for y in range(h):
-        for x in range(w):
-            local_region = padded_image[y:y + kernel_size, x:x + kernel_size]
-            eroded_image[y, x] = np.min(local_region)
-
-    return eroded_image
-
-# NumPy 方式 - 形态学膨胀
-def custom_dilate(image, kernel_size):
-    """ NumPy 实现形态学膨胀 """
-    h, w = image.shape
-    pad = kernel_size // 2
-    dilated_image = np.copy(image)
-    padded_image = np.pad(image, pad_width=pad, mode='constant', constant_values=0)
-
-    for y in range(h):
-        for x in range(w):
-            local_region = padded_image[y:y + kernel_size, x:x + kernel_size]
-            dilated_image[y, x] = np.max(local_region)
-
-    return dilated_image
-
-
 
 def exercise_06b_opening_closing(i, input_file, output_file, method="numpy"):
     """ 交替滤波处理（Opening-Closing） """
@@ -149,15 +64,20 @@ if __name__ == "__main__":
     input_file = "Exercises_04ab/immed_gray_inv.pgm"
     output_file1 = "Exercises_06ab/immed_gray_inv_ope2clo2.pgm"
     output_file2 = "Exercises_06ab/immed_gray_inv_ope4clo4.pgm"
-
+    output_txt1 = "Exercises_06ab/exercise_06b_output_01.txt"
+    output_txt2 = "Exercises_06ab/exercise_06b_output_02.txt"
+    compare_file1= "Exercises_06ab/immed_gray_inv_20051123_ope2clo2.pgm"
+    compare_file2= "Exercises_06ab/immed_gray_inv_20051123_ope4clo4.pgm"
 # 运行不同的 Opening-Closing 交替滤波方法
-    exercise_06b_opening_closing(i1, input_file, output_file1, method="list")  
-    exercise_06b_opening_closing(i2, input_file, output_file2, method="list")  
+    exercise_06b_opening_closing(i1, input_file, output_file1, method="numpy")   # NumPy 版
+    exercise_06b_opening_closing(i2, input_file, output_file2, method="numpy")  
 
 # 显示图像
     img_original = cv2.imread(input_file, cv2.IMREAD_GRAYSCALE)
     img_filtered1 = cv2.imread(output_file1, cv2.IMREAD_GRAYSCALE)
     img_filtered2 = cv2.imread(output_file2, cv2.IMREAD_GRAYSCALE)
+    print(exercise_02b_compare(output_file1, compare_file1,output_txt1))
+    print(exercise_02b_compare(output_file2, compare_file2,output_txt2))
 
     if img_original is not None and img_filtered1 is not None and img_filtered2 is not None:
         cv2.imshow("Original Image", img_original)

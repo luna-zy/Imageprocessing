@@ -1,6 +1,9 @@
 import cv2
 import numpy as np
 import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from Exercises_02ab.exercise_02b_compare import exercise_02b_compare
 
 # 使用 NumPy 实现形态学膨胀
 def custom_dilate(image, kernel_size):
@@ -10,7 +13,7 @@ def custom_dilate(image, kernel_size):
     dilated_image = np.copy(image)
 
     # 在边界填充，以防止索引越界
-    padded_image = np.pad(image, pad_width=pad, mode='constant', constant_values=0)
+    padded_image = np.pad(image, pad_width=pad, mode='edge')
 
     # 遍历图像（忽略填充部分）
     for y in range(h):
@@ -56,7 +59,7 @@ def exercise_03b_dilation(i, input_file, output_file, method="numpy"):
         print(f"Error: Unable to read {input_file}")
         sys.exit(1)
     
-    kernel_size = 2 * i + 1  # 计算 (2*i+1) x (2*i+1) 结构元素大小
+    kernel_size = 3  
     dilated_image = image.copy()
 
     # 执行 i 次膨胀
@@ -72,27 +75,31 @@ def exercise_03b_dilation(i, input_file, output_file, method="numpy"):
     cv2.imwrite(output_file, dilated_image)
     print(f"Dilation of size {i} applied and saved to {output_file} (Method: {method})")
 
-# 测试膨胀操作
-i1 = 1  # 3x3 结构元素
-i2 = 2  # 5x5 结构元素
-input_file = "Exercises_03ab/immed_gray_inv.pgm"
-output_file1 = "Exercises_03ab/immed_gray_inv_dil1.pgm"
-output_file2 = "Exercises_03ab/immed_gray_inv_dil2.pgm"
+if __name__ == "__main__":
+    # 测试膨胀操作
+    i1 = 1  # 3x3 结构元素
+    i2 = 2  # 5x5 结构元素
+    input_file = "Exercises_03ab/immed_gray_inv.pgm"
+    output_file1 = "Exercises_03ab/immed_gray_inv_dil1.pgm"
+    output_file2 = "Exercises_03ab/immed_gray_inv_dil2.pgm"
+    output_txt1 = "Exercises_03ab/exercise_03b_output_01.txt"
+    output_txt2 = "Exercises_03ab/exercise_03b_output_02.txt"
+    # 运行不同的膨胀方法
+    exercise_03b_dilation(i1, input_file, output_file1, method="numpy")  # 纯 Python 列表方式
+    exercise_03b_dilation(i2, input_file, output_file2, method="numpy")  # 纯 Python 列表方式
 
-# 运行不同的膨胀方法
-exercise_03b_dilation(i1, input_file, output_file1, method="list")  # 纯 Python 列表方式
-exercise_03b_dilation(i2, input_file, output_file2, method="list")  # 纯 Python 列表方式
+    # 显示图像
+    img_original = cv2.imread(input_file, cv2.IMREAD_GRAYSCALE)
+    img_dilated1 = cv2.imread(output_file1, cv2.IMREAD_GRAYSCALE)
+    img_dilated2 = cv2.imread(output_file2, cv2.IMREAD_GRAYSCALE)
+    print(exercise_02b_compare(output_file1, "Exercises_03ab/immed_gray_inv_20051123_dil1.pgm",output_txt1))
+    print(exercise_02b_compare(output_file2, "Exercises_03ab/immed_gray_inv_20051123_dil2.pgm",output_txt2))
 
-# 显示图像
-img_original = cv2.imread(input_file, cv2.IMREAD_GRAYSCALE)
-img_dilated1 = cv2.imread(output_file1, cv2.IMREAD_GRAYSCALE)
-img_dilated2 = cv2.imread(output_file2, cv2.IMREAD_GRAYSCALE)
-
-if img_original is not None and img_dilated1 is not None and img_dilated2 is not None:
-    cv2.imshow("Original Image", img_original)
-    cv2.imshow(f"Dilated Image (i={i1})", img_dilated1)
-    cv2.imshow(f"Dilated Image (i={i2})", img_dilated2)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-else:
-    print("Error: Unable to load images for display.")
+    if img_original is not None and img_dilated1 is not None and img_dilated2 is not None:
+        cv2.imshow("Original Image", img_original)
+        cv2.imshow(f"Dilated Image (i={i1})", img_dilated1)
+        cv2.imshow(f"Dilated Image (i={i2})", img_dilated2)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+    else:
+        print("Error: Unable to load images for display.")

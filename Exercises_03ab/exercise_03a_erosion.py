@@ -1,6 +1,9 @@
 import cv2
 import numpy as np
 import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from Exercises_02ab.exercise_02b_compare import exercise_02b_compare
 
 # 使用 NumPy 实现形态学腐蚀
 def custom_erode(image, kernel_size):
@@ -10,7 +13,7 @@ def custom_erode(image, kernel_size):
     eroded_image = np.copy(image)
 
     # 在边界填充，以防止索引越界
-    padded_image = np.pad(image, pad_width=pad, mode='constant', constant_values=255)
+    padded_image = np.pad(image, pad_width=pad, mode='edge')
 
     # 遍历图像（忽略填充部分）
     for y in range(h):
@@ -47,7 +50,7 @@ def manual_erode(image, kernel_size):
 def cv_erode(image, kernel_size):
     """ OpenCV 版本形态学腐蚀 """
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (kernel_size, kernel_size))
-    return cv2.erode(image, kernel, iterations=1)
+    return cv2.erode(image, kernel)
 
 def exercise_03a_erosion(i, input_file, output_file, method="numpy"):
     """ 形态学腐蚀处理 """
@@ -56,7 +59,7 @@ def exercise_03a_erosion(i, input_file, output_file, method="numpy"):
         print(f"Error: Unable to read {input_file}")
         sys.exit(1)
     
-    kernel_size = 2 * i + 1  # 计算 (2*i+1) x (2*i+1) 结构元素大小
+    kernel_size = 3  
     eroded_image = image.copy()
 
     # 执行 i 次腐蚀
@@ -72,30 +75,37 @@ def exercise_03a_erosion(i, input_file, output_file, method="numpy"):
     cv2.imwrite(output_file, eroded_image)
     print(f"Erosion of size {i} applied and saved to {output_file} (Method: {method})")
 
-# 测试腐蚀操作
-i1 = 1  # 3x3 结构元素
-i2 = 2  # 5x5 结构元素
-input_file = "Exercises_03ab/immed_gray_inv.pgm"
-output_file1 = "Exercises_03ab/immed_gray_inv_ero1.pgm"
-output_file2 = "Exercises_03ab/immed_gray_inv_ero2.pgm"
+if __name__ == "__main__":
+    # 测试腐蚀操作
+    i1 = 1  # 3x3 结构元素
+    i2 = 2  # 5x5 结构元素
+    input_file = "Exercises_03ab/immed_gray_inv.pgm"
+    output_file1 = "Exercises_03ab/immed_gray_inv_ero1.pgm"
+    output_file2 = "Exercises_03ab/immed_gray_inv_ero2.pgm"
+    output_txt1 = "Exercises_03ab/exercise_03a_output_01.txt"
+    output_txt2 = "Exercises_03ab/exercise_03a_output_02.txt"
 
-# 运行不同的腐蚀方法
+    # 运行不同的腐蚀方法
 
-exercise_03a_erosion(i1, input_file, output_file1, method="list")  
+    exercise_03a_erosion(i1, input_file, output_file1, method="numpy")  
 
-exercise_03a_erosion(i2, input_file, output_file2, method="list")   
+    exercise_03a_erosion(i2, input_file, output_file2, method="numpy")      
 
 
-# 显示图像
-img_original = cv2.imread(input_file, cv2.IMREAD_GRAYSCALE)
-img_eroded1 = cv2.imread(output_file1, cv2.IMREAD_GRAYSCALE)
-img_eroded2 = cv2.imread(output_file2, cv2.IMREAD_GRAYSCALE)
+    # 显示图像
+    img_original = cv2.imread(input_file, cv2.IMREAD_GRAYSCALE)
+    img_eroded1 = cv2.imread(output_file1, cv2.IMREAD_GRAYSCALE)
+    img_eroded2 = cv2.imread(output_file2, cv2.IMREAD_GRAYSCALE)
+    compare_image1=cv2.imread("Exercises_03ab/immed_gray_inv_20051123_dil1.pgm", cv2.IMREAD_GRAYSCALE)
+    print(exercise_02b_compare(output_file1, "Exercises_03ab/immed_gray_inv_20051123_ero1.pgm",output_txt1))
+    print(exercise_02b_compare(output_file2, "Exercises_03ab/immed_gray_inv_20051123_ero2.pgm",output_txt2))
 
-if img_original is not None and img_eroded1 is not None and img_eroded2 is not None:
-    cv2.imshow("Original Image", img_original)
-    cv2.imshow(f"Eroded Image (i={i1})", img_eroded1)
-    cv2.imshow(f"Eroded Image (i={i2})", img_eroded2)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-else:
-    print("Error: Unable to load images for display.")
+    if img_original is not None and img_eroded1 is not None and img_eroded2 is not None:
+        cv2.imshow("Original Image", img_original)
+        cv2.imshow(f"Eroded Image (i={i1})", img_eroded1)
+        cv2.imshow(f"Eroded Image (i={i2})", img_eroded2)
+        cv2.imshow("compare_image1",compare_image1)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+    else:
+        print("Error: Unable to load images for display.")

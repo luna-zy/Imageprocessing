@@ -11,7 +11,7 @@ img_scene_resized = cv2.imread('Exercises_15/lena_resized.jpg', cv2.IMREAD_COLOR
 img_scene_blended = cv2.imread('Exercises_15/blended_scene.jpg', cv2.IMREAD_COLOR_RGB)
 
 
-# BRISK 特征检测与匹配
+# BRISK feature detector
 brisk = cv2.BRISK_create()
 
 def match_images(img1, img2, title):
@@ -22,7 +22,7 @@ def match_images(img1, img2, title):
     matches = bf.match(des1, des2)
     matches = sorted(matches, key=lambda x: x.distance)
 
-    match_threshold = 300  # 设定一个匹配阈值
+    match_threshold = 300  # set the threshold for the number of matches
     match_success = len(matches) > match_threshold
     
     matched_img = cv2.drawMatches(img1, kp1, img2, kp2, matches[:50], None, flags=2)
@@ -34,10 +34,9 @@ def match_images(img1, img2, title):
 
     print(f"{title}: {'success' if match_success else 'fail'}, point: {len(matches)}")
 
-# 进行特征匹配
+# match the template image with the scene images
 match_images(img_template, img_scene_mirror, "BRISK Matching - Mirror")
 match_images(img_template, img_scene_rotated, "BRISK Matching - Rotated")
 match_images(img_template, img_scene_resized, "BRISK Matching - Resized")
 match_images(img_template, img_scene_blended, "BRISK Matching - Blended")
 
-# 判断是否匹配成功

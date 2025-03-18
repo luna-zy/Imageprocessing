@@ -1,11 +1,40 @@
-import cv2
+import cv2 as cv
 import numpy as np
-import sys
-from collections import deque
 import os
+from collections import deque
+import sys
 
+
+
+type Image = cv.typing.MatLike
+
+def save_image(img: Image, filename: str):
+  print(f"Saving image to file {filename} ...")
+  cv.imwrite(f"{filename}", img)
+
+def get_kernel(size: int):
+  l = 2*size+1
+  return np.ones((l, l), np.uint8)
+
+def get_markers(img: Image):
+  markers = cv.bitwise_not(img) # invert image
+  _, markers = cv.threshold(markers, 80, 255, cv.THRESH_BINARY)
+
+  # edit image to get markers
+  markers = cv.erode(markers, get_kernel(3))
+  markers = cv.morphologyEx(markers, cv.MORPH_OPEN, get_kernel(4))
+  markers = cv.erode(markers, get_kernel(5))
+
+  # find markers contours
+  contours, _ = cv.findContours(markers, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+
+  # output the markers in a white background
+  clean_markers = np.ones((img.shape[0], img.shape[1]), np.uint8) * 255
+  cv.drawContours(clean_markers, contours, -1, 0, 7)
+
+  return clean_markers
 def flood_fill_queue(image, visited, label_map, x, y, label, connectivity):
-    """ 使用队列（BFS）进行连通区域标记 """
+
     queue = deque([(x, y)])
     h, w = image.shape
     gray_value = image[x, y]  # 当前区域的灰度值
@@ -33,8 +62,8 @@ def flood_fill_queue(image, visited, label_map, x, y, label, connectivity):
                 if not visited[nx, ny] and image[nx, ny] == gray_value:
                     queue.append((nx, ny))  # 加入队列，继续搜索
 
-def count_flat_zones_queue(input_txt, input_pgm, output_txt):
-    """ 使用队列（BFS）计算输入 PGM 图像的平坦区域数量 """
+def count_flat_zones_queue(input_txt, input_pgm):
+
 
     # 读取连通性参数（4 或 8）
     # if input_txt is a file, read the connectivity from the file
@@ -50,8 +79,13 @@ def count_flat_zones_queue(input_txt, input_pgm, output_txt):
         print("Error: Connectivity must be 4 or 8.")
         sys.exit(1)
 
+    # if input_pgm has been read, use the image
+    if isinstance(input_pgm, np.ndarray):
+        image = input_pgm
+
+    else:
     # 读取 PGM 图像
-    image = cv2.imread(input_pgm, cv2.IMREAD_GRAYSCALE)
+        image = cv.imread(input_pgm, cv.IMREAD_GRAYSCALE)
     if image is None:
         print("Error: Unable to read the image.")
         sys.exit(1)
@@ -67,18 +101,20 @@ def count_flat_zones_queue(input_txt, input_pgm, output_txt):
             if not visited[i, j]:  # 如果未访问过
                 label += 1  # 分配新标签
                 flood_fill_queue(image, visited, label_map, i, j, label, connectivity)
+    
 
-    # 保存结果
-    with open(output_txt, 'w') as f:
-        f.write(str(label) + '\n')
+    print(f"Flat Zones Count: {label-1} (Connectivity={connectivity})")
+    return label-1
 
-    print(f"Flat Zones Count: {label} (Connectivity={connectivity})")
-    print(f"Result saved to {output_txt}")
 
-# 运行测试
-input_txt = "Exercises_12a/exercise_12a_input_01.txt"
-#input_pgm = "Exercises_12a/immed_gray_inv.pgm"
-input_pgm = "Exercises_12a/immed_gray_inv_20051218_thresh127.pgm"
-output_txt = "Exercises_12a/exercise_12a_output_01.txt"
 
-count_flat_zones_queue(input_txt, input_pgm, output_txt)
+# python coffee_markers.py
+def main():
+  input_img = cv.imread("TestImages/TestImages/coffee_grains.jpg", cv.IMREAD_GRAYSCALE)
+
+  markers = get_markers(input_img)
+  save_image(markers, "coffee_markers_out.png")
+  count_flat_zones_queue(8, markers)
+  
+
+main()

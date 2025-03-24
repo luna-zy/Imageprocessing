@@ -28,9 +28,6 @@ def process_bounding_box_subregion(image, x, y, w, h):
 def generate_mask_with_boxes(image_path, boxes):
     img = cv2.imread(image_path)
     print(img.shape)  # 打印图像尺寸 (高, 宽, 通道)
-    cv2.imshow("img", img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
 
     if img is None:
         raise FileNotFoundError(f"图片加载失败，请检查路径：{image_path}")
@@ -61,7 +58,7 @@ def overlay_mask_on_image(image, mask):
 image_infos = {
     "Mammo001": {
         "path": "Exercises_seg/Mammo001.png",
-        "boxes": [{'x': 378, 'y': 453, 'w': 218, 'h': 105}]
+        "boxes": [{'x': 1116, 'y': 1724, 'w': 218, 'h': 105}]
     },
     "Mammo002": {
         "path": "Exercises_seg/Mammo002.png",
